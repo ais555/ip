@@ -21,7 +21,7 @@ public class JohnChatter {
                 for (int i = 1; i <= items.length; i++) {
                     Task item = items[i - 1];
                     if (item != null) {
-                        System.out.println(i + ".[" + item.getStatusIcon() + "] " + item.description);
+                        System.out.println(i + "." + item.toString());
                     }
                 }
             } else if (splitInput.length == 2 && splitInput[0].equals("mark") && splitInput[1].matches("\\d+")) {
