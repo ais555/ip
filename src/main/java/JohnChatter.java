@@ -1,8 +1,11 @@
-import java.io.IOException;
-import java.util.Scanner;
-import java.util.ArrayList;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Scanner;
+import java.util.ArrayList;
 
 public class JohnChatter {
     private static void writeTaskData(File file, ArrayList<Task> items) throws IOException {
@@ -135,8 +138,19 @@ public class JohnChatter {
                     if (splitInputAroundSpace.length == 1) {
                         throw new JohnChatterException("oops! tasks must have a description");
                     }
-                    Deadline deadline = new Deadline(input.split("deadline ")[1].split(" /by")[0], input.split("/by ")[1]);
+
+                    String formattedDeadlineDate;
+                    String deadlineDateInput = input.split("/by ")[1];
+                    try {
+                        LocalDate deadlineDate = LocalDate.parse(deadlineDateInput);
+                        formattedDeadlineDate = deadlineDate.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
+                    } catch (DateTimeParseException e) {
+                        formattedDeadlineDate = deadlineDateInput;
+                    }
+                    Deadline deadline = new Deadline(
+                            input.split("deadline ")[1].split(" /by")[0], formattedDeadlineDate);
                     items.add(deadline);
+
                     try {
                         writeTaskData(taskData, items);
                     } catch (IOException e) {
@@ -147,10 +161,25 @@ public class JohnChatter {
                     if (splitInputAroundSpace.length == 1) {
                         throw new JohnChatterException("oops! tasks must have a description");
                     }
-                    String end = input.split("/to ")[1];
-                    String start = input.split(" /to")[0].split("/from ")[1];
+
+                    String formattedEnd;
+                    String formattedStart;
+                    String endInput = input.split("/to ")[1];
+                    String startInput = input.split(" /to")[0].split("/from ")[1];
                     String description = input.split(" /to")[0].split(" /from")[0].split("event ")[1];
-                    Event event = new Event(description, start, end);
+                    try {
+                        LocalDate startDate = LocalDate.parse(startInput);
+                        formattedStart = startDate.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
+                    } catch (DateTimeParseException e) {
+                        formattedStart = startInput;
+                    }
+                    try {
+                        LocalDate endDate = LocalDate.parse(endInput);
+                        formattedEnd = endDate.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
+                    } catch (DateTimeParseException e) {
+                        formattedEnd = endInput;
+                    }
+                    Event event = new Event(description, formattedStart, formattedEnd);
                     items.add(event);
                     try {
                         writeTaskData(taskData, items);
