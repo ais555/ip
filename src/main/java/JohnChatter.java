@@ -6,11 +6,15 @@ import java.util.Scanner;
 import java.util.ArrayList;
 
 public class JohnChatter {
-    public static void main(String[] args) throws JohnChatterException, IOException {
-        System.out.println("it is i, john chatter");
+    private Storage storage;
 
-        Storage storage = new Storage("data/task_data.txt");
-        ArrayList<Task> items = storage.load();
+    public JohnChatter(String filepath) {
+        this.storage = new Storage(filepath);
+    }
+
+    public void run() throws IOException {
+        System.out.println("it is i, john chatter");
+        ArrayList<Task> items = this.storage.load();
         String input;
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -54,7 +58,7 @@ public class JohnChatter {
                     Todo todo = new Todo(input.split("todo ")[1]);
                     items.add(todo);
                     try {
-                        storage.writeTaskData(items);
+                        this.storage.writeTaskData(items);
                     } catch (IOException e) {
                         System.out.println("something went wrong: " + e.getMessage());
                     }
@@ -77,7 +81,7 @@ public class JohnChatter {
                     items.add(deadline);
 
                     try {
-                        storage.writeTaskData(items);
+                        this.storage.writeTaskData(items);
                     } catch (IOException e) {
                         System.out.println("something went wrong: " + e.getMessage());
                     }
@@ -107,7 +111,7 @@ public class JohnChatter {
                     Event event = new Event(description, formattedStart, formattedEnd);
                     items.add(event);
                     try {
-                        storage.writeTaskData(items);
+                        this.storage.writeTaskData(items);
                     } catch (IOException e) {
                         System.out.println("something went wrong: " + e.getMessage());
                     }
@@ -119,7 +123,7 @@ public class JohnChatter {
                         items.remove(number - 1);
                         System.out.println("deleted task: " + task);
                         try {
-                            storage.writeTaskData(items);
+                            this.storage.writeTaskData(items);
                         } catch (IOException e) {
                             System.out.println("something went wrong: " + e.getMessage());
                         }
@@ -131,5 +135,9 @@ public class JohnChatter {
                 System.out.println(e.getMessage());
             }
         }
+    }
+
+    public static void main(String[] args) throws JohnChatterException, IOException {
+        new JohnChatter("data/task_data.txt").run();
     }
 }
