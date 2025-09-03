@@ -16,14 +16,12 @@ public class JohnChatter {
                 nextLine.append("T|")
                         .append(item.isDone ? "1" : "0").append("|")
                         .append(item.description);
-            } else if (item instanceof Deadline) {
-                Deadline deadline = (Deadline) item;
+            } else if (item instanceof Deadline deadline) {
                 nextLine.append("D|")
                         .append(deadline.isDone ? "1" : "0").append("|")
                         .append(deadline.description).append("|")
                         .append(deadline.by);
-            } else if (item instanceof Event) {
-                Event event = (Event) item;
+            } else if (item instanceof Event event) {
                 nextLine.append("E|")
                         .append(event.isDone ? "1" : "0").append("|")
                         .append(event.description).append("|")
@@ -47,23 +45,23 @@ public class JohnChatter {
             boolean isDone = parts[1].equals("1");
 
             switch (taskType) {
-                case "T":
-                    Todo todo = new Todo(parts[2]);
-                    if (isDone) todo.markAsDone();
-                    items.add(todo);
-                    break;
-                case "D":
-                    Deadline d = new Deadline(parts[2], parts[3]);
-                    if (isDone) d.markAsDone();
-                    items.add(d);
-                    break;
-                case "E":
-                    Event e = new Event(parts[2], parts[3], parts[4]);
-                    if (isDone) e.markAsDone();
-                    items.add(e);
-                    break;
-                default:
-                    System.out.println("unrecognised task type");
+            case "T":
+                Todo todo = new Todo(parts[2]);
+                if (isDone) todo.markAsDone();
+                items.add(todo);
+                break;
+            case "D":
+                Deadline d = new Deadline(parts[2], parts[3]);
+                if (isDone) d.markAsDone();
+                items.add(d);
+                break;
+            case "E":
+                Event e = new Event(parts[2], parts[3], parts[4]);
+                if (isDone) e.markAsDone();
+                items.add(e);
+                break;
+            default:
+                System.out.println("unrecognised task type");
             }
         }
         return items;
@@ -77,12 +75,12 @@ public class JohnChatter {
         if (!taskDataParent.exists()) {
             if (!taskDataParent.mkdirs()) {
                 throw new IOException("mkdirs failed");
-            };
+            }
         }
         if (!taskData.exists()) {
             if (!taskData.createNewFile()) {
                 throw new IOException("createNewFile failed");
-            };
+            }
         }
 
         ArrayList<Task> items = loadTaskData(taskData);
@@ -101,7 +99,7 @@ public class JohnChatter {
                     for (int i = 1; i <= items.size(); i++) {
                         Task item = items.get(i -1);
                         if (item != null) {
-                            System.out.println(i + "." + item.toString());
+                            System.out.println(i + "." + item);
                         }
                     }
                 } else if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[0].equals("mark") && splitInputAroundSpace[1].matches("\\d+")) {
@@ -133,7 +131,7 @@ public class JohnChatter {
                     } catch (IOException e) {
                         System.out.println("something went wrong: " + e.getMessage());
                     }
-                    System.out.println("added:\n" + todo.toString());
+                    System.out.println("added:\n" + todo);
                 } else if (splitInputAroundSpace[0].equals("deadline")) {
                     if (splitInputAroundSpace.length == 1) {
                         throw new JohnChatterException("oops! tasks must have a description");
@@ -156,7 +154,7 @@ public class JohnChatter {
                     } catch (IOException e) {
                         System.out.println("something went wrong: " + e.getMessage());
                     }
-                    System.out.println("added:\n" + deadline.toString());
+                    System.out.println("added:\n" + deadline);
                 } else if (splitInputAroundSpace[0].equals("event")) {
                     if (splitInputAroundSpace.length == 1) {
                         throw new JohnChatterException("oops! tasks must have a description");
@@ -186,7 +184,7 @@ public class JohnChatter {
                     } catch (IOException e) {
                         System.out.println("something went wrong: " + e.getMessage());
                     }
-                    System.out.println("added:\n" + event.toString());
+                    System.out.println("added:\n" + event);
                 } else if (splitInputAroundSpace[0].equals("delete")) {
                     if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[1].matches("\\d+")) {
                         int number = Integer.parseInt(splitInputAroundSpace[1]);
@@ -203,7 +201,7 @@ public class JohnChatter {
                     throw new JohnChatterException("sorry, i don't know what that means");
                 }
             } catch (JohnChatterException e) {
-                System.out.println(e.toString());
+                System.out.println(e.getMessage());
             }
         }
     }
