@@ -1,5 +1,3 @@
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -8,82 +6,11 @@ import java.util.Scanner;
 import java.util.ArrayList;
 
 public class JohnChatter {
-    private static void writeTaskData(File file, ArrayList<Task> items) throws IOException {
-        FileWriter writer = new FileWriter(file);
-        for (Task item : items) {
-            StringBuilder nextLine = new StringBuilder();
-            if (item instanceof Todo) {
-                nextLine.append("T|")
-                        .append(item.isDone ? "1" : "0").append("|")
-                        .append(item.description);
-            } else if (item instanceof Deadline deadline) {
-                nextLine.append("D|")
-                        .append(deadline.isDone ? "1" : "0").append("|")
-                        .append(deadline.description).append("|")
-                        .append(deadline.by);
-            } else if (item instanceof Event event) {
-                nextLine.append("E|")
-                        .append(event.isDone ? "1" : "0").append("|")
-                        .append(event.description).append("|")
-                        .append(event.start).append("|")
-                        .append(event.end);
-            }
-            writer.write(nextLine.toString());
-            writer.write(System.lineSeparator());
-        }
-        writer.close();
-    }
-
-    private static ArrayList<Task> loadTaskData(File file) throws IOException {
-        ArrayList<Task> items = new ArrayList<>();
-        Scanner scanner = new Scanner(file);
-        while (scanner.hasNextLine()) {
-            String line = scanner.nextLine().trim();
-
-            String[] parts = line.split("\\|");
-            String taskType = parts[0];
-            boolean isDone = parts[1].equals("1");
-
-            switch (taskType) {
-            case "T":
-                Todo todo = new Todo(parts[2]);
-                if (isDone) todo.markAsDone();
-                items.add(todo);
-                break;
-            case "D":
-                Deadline d = new Deadline(parts[2], parts[3]);
-                if (isDone) d.markAsDone();
-                items.add(d);
-                break;
-            case "E":
-                Event e = new Event(parts[2], parts[3], parts[4]);
-                if (isDone) e.markAsDone();
-                items.add(e);
-                break;
-            default:
-                System.out.println("unrecognised task type");
-            }
-        }
-        return items;
-    }
-
     public static void main(String[] args) throws JohnChatterException, IOException {
         System.out.println("it is i, john chatter");
 
-        File taskData = new File("data/task_data.txt");
-        File taskDataParent = taskData.getParentFile();
-        if (!taskDataParent.exists()) {
-            if (!taskDataParent.mkdirs()) {
-                throw new IOException("mkdirs failed");
-            }
-        }
-        if (!taskData.exists()) {
-            if (!taskData.createNewFile()) {
-                throw new IOException("createNewFile failed");
-            }
-        }
-
-        ArrayList<Task> items = loadTaskData(taskData);
+        Storage storage = new Storage("data/task_data.txt");
+        ArrayList<Task> items = storage.load();
         String input;
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -127,7 +54,7 @@ public class JohnChatter {
                     Todo todo = new Todo(input.split("todo ")[1]);
                     items.add(todo);
                     try {
-                        writeTaskData(taskData, items);
+                        storage.writeTaskData(items);
                     } catch (IOException e) {
                         System.out.println("something went wrong: " + e.getMessage());
                     }
@@ -150,7 +77,7 @@ public class JohnChatter {
                     items.add(deadline);
 
                     try {
-                        writeTaskData(taskData, items);
+                        storage.writeTaskData(items);
                     } catch (IOException e) {
                         System.out.println("something went wrong: " + e.getMessage());
                     }
@@ -180,7 +107,7 @@ public class JohnChatter {
                     Event event = new Event(description, formattedStart, formattedEnd);
                     items.add(event);
                     try {
-                        writeTaskData(taskData, items);
+                        storage.writeTaskData(items);
                     } catch (IOException e) {
                         System.out.println("something went wrong: " + e.getMessage());
                     }
@@ -192,7 +119,7 @@ public class JohnChatter {
                         items.remove(number - 1);
                         System.out.println("deleted task: " + task);
                         try {
-                            writeTaskData(taskData, items);
+                            storage.writeTaskData(items);
                         } catch (IOException e) {
                             System.out.println("something went wrong: " + e.getMessage());
                         }
