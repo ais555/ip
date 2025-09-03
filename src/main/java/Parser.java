@@ -1,18 +1,18 @@
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
 public class Parser {
-    public static String parse(String input, Ui ui, Storage storage, ArrayList<Task> items) throws JohnChatterException {
+    public static String parse(String input, Ui ui, Storage storage, TaskList tasks) throws JohnChatterException {
+        ArrayList<Task> list = tasks.list;
         String[] splitInputAroundSpace = input.split(" ");
         if (input.equals("bye")) {
             ui.showGoodbye();
             return "bye";
         } else if (input.equals("list")) {
-            for (int i = 1; i <= items.size(); i++) {
-                Task item = items.get(i -1);
+            for (int i = 1; i <= list.size(); i++) {
+                Task item = list.get(i -1);
                 if (item != null) {
                     System.out.println(i + "." + item);
                 }
@@ -20,38 +20,24 @@ public class Parser {
         } else if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[0].equals("mark") && splitInputAroundSpace[1].matches("\\d+")) {
             // Mark a task as done
             int index = Integer.parseInt(splitInputAroundSpace[1]);
-            if (items.get(index - 1) != null) {
-                items.get(index - 1).markAsDone();
-                System.out.println("marked " + items.get(index - 1).description + " as done");
-            } else {
-                System.out.println("i cannot mark a task that doesn't exist yet");
-            }
+            tasks.mark(list.get(index - 1));
         } else if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[0].equals("unmark") && splitInputAroundSpace[1].matches("\\d+")) {
             // Mark a task as undone
             int index = Integer.parseInt(splitInputAroundSpace[1]);
-            if (items.get(index - 1) != null) {
-                items.get(index - 1).markAsUndone();
-                System.out.println("marked " + items.get(index - 1).description + " as undone");
-            } else {
-                System.out.println("i cannot mark a task that doesn't exist yet");
-            }
+            tasks.unmark(list.get(index - 1));
         } else if (splitInputAroundSpace[0].equals("todo")) {
-            if (splitInputAroundSpace.length == 1) {
-                throw new JohnChatterException("oops! tasks must have a description");
-            }
-            Todo todo = new Todo(input.split("todo ")[1]);
-            items.add(todo);
-            try {
-                storage.writeTaskData(items);
-            } catch (IOException e) {
-                ui.showError(e.getMessage());
-            }
-            System.out.println("added:\n" + todo);
-        } else if (splitInputAroundSpace[0].equals("deadline")) {
+            // Add a Todo
             if (splitInputAroundSpace.length == 1) {
                 throw new JohnChatterException("oops! tasks must have a description");
             }
 
+            Todo todo = new Todo(input.split("todo ")[1]);
+            tasks.addTodo(todo, storage, ui);
+        } else if (splitInputAroundSpace[0].equals("deadline")) {
+            // Add a Deadline
+            if (splitInputAroundSpace.length == 1) {
+                throw new JohnChatterException("oops! tasks must have a description");
+            }
             String formattedDeadlineDate;
             String deadlineDateInput = input.split("/by ")[1];
             try {
@@ -60,21 +46,15 @@ public class Parser {
             } catch (DateTimeParseException e) {
                 formattedDeadlineDate = deadlineDateInput;
             }
+
             Deadline deadline = new Deadline(
                     input.split("deadline ")[1].split(" /by")[0], formattedDeadlineDate);
-            items.add(deadline);
-
-            try {
-                storage.writeTaskData(items);
-            } catch (IOException e) {
-                ui.showError(e.getMessage());
-            }
-            System.out.println("added:\n" + deadline);
+            tasks.addDeadline(deadline, storage, ui);
         } else if (splitInputAroundSpace[0].equals("event")) {
+            // Add an Event
             if (splitInputAroundSpace.length == 1) {
                 throw new JohnChatterException("oops! tasks must have a description");
             }
-
             String formattedEnd;
             String formattedStart;
             String endInput = input.split("/to ")[1];
@@ -92,25 +72,14 @@ public class Parser {
             } catch (DateTimeParseException e) {
                 formattedEnd = endInput;
             }
+
             Event event = new Event(description, formattedStart, formattedEnd);
-            items.add(event);
-            try {
-                storage.writeTaskData(items);
-            } catch (IOException e) {
-                ui.showError(e.getMessage());
-            }
-            System.out.println("added:\n" + event);
+            tasks.addEvent(event, storage, ui);
         } else if (splitInputAroundSpace[0].equals("delete")) {
             if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[1].matches("\\d+")) {
                 int number = Integer.parseInt(splitInputAroundSpace[1]);
-                String task = items.get(number - 1).toString();
-                items.remove(number - 1);
-                System.out.println("deleted task: " + task);
-                try {
-                    storage.writeTaskData(items);
-                } catch (IOException e) {
-                    ui.showError(e.getMessage());
-                }
+                Task task = list.get(number - 1);
+                tasks.deleteTask(task, storage, ui);
             }
         } else {
             throw new JohnChatterException("sorry, i don't know what that means");

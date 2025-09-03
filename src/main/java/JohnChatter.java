@@ -1,26 +1,26 @@
 import java.io.IOException;
 import java.util.Scanner;
-import java.util.ArrayList;
 
 public class JohnChatter {
     private Storage storage;
+    private TaskList tasks;
     private Ui ui;
 
-    public JohnChatter(String filepath) {
+    public JohnChatter(String filepath) throws IOException {
         this.storage = new Storage(filepath);
+        this.tasks = new TaskList(this.storage.load());
         this.ui = new Ui();
     }
 
-    public void run() throws IOException, JohnChatterException {
+    public void run() {
         ui.showWelcome();
-        ArrayList<Task> items = this.storage.load();
         String input;
         Scanner scanner = new Scanner(System.in);
         while (true) {
             input = scanner.nextLine();
             try {
                 ui.showDividerLine();
-                if (Parser.parse(input, ui, storage, items).equals("bye")) {
+                if (Parser.parse(input, ui, storage, tasks).equals("bye")) {
                     break;
                 }
             } catch (JohnChatterException e) {
@@ -31,7 +31,7 @@ public class JohnChatter {
         }
     }
 
-    public static void main(String[] args) throws JohnChatterException, IOException {
+    public static void main(String[] args) throws IOException {
         new JohnChatter("data/task_data.txt").run();
     }
 }
