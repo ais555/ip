@@ -7,13 +7,15 @@ import java.util.ArrayList;
 
 public class JohnChatter {
     private Storage storage;
+    private Ui ui;
 
     public JohnChatter(String filepath) {
         this.storage = new Storage(filepath);
+        this.ui = new Ui();
     }
 
     public void run() throws IOException {
-        System.out.println("it is i, john chatter");
+        ui.showWelcome();
         ArrayList<Task> items = this.storage.load();
         String input;
         Scanner scanner = new Scanner(System.in);
@@ -23,8 +25,9 @@ public class JohnChatter {
             String[] splitInputAroundSpace = input.split(" ");
 
             try {
+                ui.showDividerLine();
                 if (input.equals("bye")) {
-                    System.out.println("goodbye!");
+                    ui.showGoodbye();
                     return;
                 } else if (input.equals("list")) {
                     for (int i = 1; i <= items.size(); i++) {
@@ -60,7 +63,7 @@ public class JohnChatter {
                     try {
                         this.storage.writeTaskData(items);
                     } catch (IOException e) {
-                        System.out.println("something went wrong: " + e.getMessage());
+                        ui.showError(e.getMessage());
                     }
                     System.out.println("added:\n" + todo);
                 } else if (splitInputAroundSpace[0].equals("deadline")) {
@@ -83,7 +86,7 @@ public class JohnChatter {
                     try {
                         this.storage.writeTaskData(items);
                     } catch (IOException e) {
-                        System.out.println("something went wrong: " + e.getMessage());
+                        ui.showError(e.getMessage());
                     }
                     System.out.println("added:\n" + deadline);
                 } else if (splitInputAroundSpace[0].equals("event")) {
@@ -113,7 +116,7 @@ public class JohnChatter {
                     try {
                         this.storage.writeTaskData(items);
                     } catch (IOException e) {
-                        System.out.println("something went wrong: " + e.getMessage());
+                        ui.showError(e.getMessage());
                     }
                     System.out.println("added:\n" + event);
                 } else if (splitInputAroundSpace[0].equals("delete")) {
@@ -125,14 +128,16 @@ public class JohnChatter {
                         try {
                             this.storage.writeTaskData(items);
                         } catch (IOException e) {
-                            System.out.println("something went wrong: " + e.getMessage());
+                            ui.showError(e.getMessage());
                         }
                     }
                 } else {
                     throw new JohnChatterException("sorry, i don't know what that means");
                 }
             } catch (JohnChatterException e) {
-                System.out.println(e.getMessage());
+                ui.showError(e.getMessage());
+            } finally {
+                ui.showDividerLine();
             }
         }
     }
