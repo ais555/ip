@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class Parser {
     public static String parse(String input, Ui ui, Storage storage, TaskList tasks) throws JohnChatterException {
@@ -15,6 +16,17 @@ public class Parser {
         } else if (input.equals("list")) {
             for (int i = 1; i <= list.size(); i++) {
                 Task item = list.get(i -1);
+                if (item != null) {
+                    System.out.println(i + "." + item);
+                }
+            }
+        } else if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[0].equals("find")) {
+            String keyword = splitInputAroundSpace[1];
+            ArrayList<Task> filteredList = new ArrayList<>(list.stream()
+                    .filter(task -> task.description.contains(keyword))
+                    .collect(Collectors.toList()));
+            for (int i = 1; i <= filteredList.size(); i++) {
+                Task item = filteredList.get(i - 1);
                 if (item != null) {
                     System.out.println(i + "." + item);
                 }
