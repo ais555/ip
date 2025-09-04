@@ -22,10 +22,18 @@ public class Parser {
         } else if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[0].equals("mark") && splitInputAroundSpace[1].matches("\\d+")) {
             // Mark a task as done
             int index = Integer.parseInt(splitInputAroundSpace[1]);
+            if (index > list.size()) {
+                throw new JohnChatterException(
+                        "it seems you have input an invalid task number, please check and try again");
+            }
             tasks.mark(list.get(index - 1));
         } else if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[0].equals("unmark") && splitInputAroundSpace[1].matches("\\d+")) {
             // Mark a task as undone
             int index = Integer.parseInt(splitInputAroundSpace[1]);
+            if (index > list.size()) {
+                throw new JohnChatterException(
+                        "it seems you have input an invalid task number, please check and try again");
+            }
             tasks.unmark(list.get(index - 1));
         } else if (splitInputAroundSpace[0].equals("todo")) {
             // Add a Todo
@@ -79,8 +87,12 @@ public class Parser {
             tasks.addEvent(event, storage, ui);
         } else if (splitInputAroundSpace[0].equals("delete")) {
             if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[1].matches("\\d+")) {
-                int number = Integer.parseInt(splitInputAroundSpace[1]);
-                Task task = list.get(number - 1);
+                int index = Integer.parseInt(splitInputAroundSpace[1]);
+                if (index > list.size()) {
+                    throw new JohnChatterException(
+                            "it seems you have input an invalid task number, please check and try again");
+                }
+                Task task = list.get(index - 1);
                 tasks.deleteTask(task, storage, ui);
             }
         } else {
