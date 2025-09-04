@@ -17,7 +17,7 @@ public class Parser {
             return "bye";
         } else if (input.equals("list")) {
             for (int i = 1; i <= list.size(); i++) {
-                Task item = list.get(i -1);
+                Task item = list.get(i - 1);
                 if (item != null) {
                     System.out.println(i + "." + item);
                 }
