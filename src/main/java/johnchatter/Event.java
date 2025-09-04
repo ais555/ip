@@ -1,5 +1,8 @@
 package johnchatter;
 
+/**
+ * A task that represents an event with specific starting and ending times.
+ */
 public class Event extends Task {
     protected String start;
     protected String end;

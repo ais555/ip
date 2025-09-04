@@ -6,6 +6,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * Stores list data and handles writing and reading file operations to save and load data
+ */
 public class Storage {
     String filePath;
     File file;
@@ -15,6 +18,13 @@ public class Storage {
         this.file = new File(this.filePath);
     }
 
+    /**
+     * Writes task data to the file output, with attributes delineated by pipes.
+     * Called after every operation that makes a change to the list of tasks.
+     *
+     * @param items The updated list of tasks
+     * @throws IOException If an exception occurs in writing
+     */
     public void writeTaskData(ArrayList<Task> items) throws IOException {
         FileWriter writer = new FileWriter(this.file);
         for (Task item : items) {
@@ -41,6 +51,12 @@ public class Storage {
         writer.close();
     }
 
+    /**
+     * Reads task data from the disk, which is then used by the rest of the program.
+     *
+     * @return ArrayList<Task> The saved list of tasks
+     * @throws IOException If an exception occurs in scanning
+     */
     public ArrayList<Task> loadTaskData() throws IOException {
         ArrayList<Task> items = new ArrayList<>();
         Scanner scanner = new Scanner(this.file);
@@ -74,6 +90,12 @@ public class Storage {
         return items;
     }
 
+    /**
+     * Creates the directories where the data will be stored if necessary, before loading the data.
+     *
+     * @return ArrayList<Task>
+     * @throws IOException
+     */
     public ArrayList<Task> load() throws IOException {
         File taskDataParent = this.file.getParentFile();
         if (!taskDataParent.exists()) {

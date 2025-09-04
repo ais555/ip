@@ -1,5 +1,8 @@
 package johnchatter;
 
+/**
+ * Handles interactions with the user.
+ */
 public class Ui {
     public Ui() {
     }

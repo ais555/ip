@@ -3,6 +3,9 @@ package johnchatter;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * Contains the methods for operating on the list of tasks.
+ */
 public class TaskList {
     public ArrayList<Task> list;
 

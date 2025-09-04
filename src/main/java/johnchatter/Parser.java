@@ -5,6 +5,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 
+/**
+ * Handles the parsing of commands from user input.
+ */
 public class Parser {
     public static String parse(String input, Ui ui, Storage storage, TaskList tasks) throws JohnChatterException {
         ArrayList<Task> list = tasks.list;

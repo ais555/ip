@@ -1,5 +1,8 @@
 package johnchatter;
 
+/**
+ * A task that has a deadline by which it is to be completed.
+ */
 public class Deadline extends Task {
     protected String by;
 
