@@ -1,5 +1,8 @@
 package johnchatter;
 
+/**
+ * Represents a task on the user's list
+ */
 public class Task {
     protected String description;
     protected boolean isDone;
