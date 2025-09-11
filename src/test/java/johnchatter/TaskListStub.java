@@ -12,32 +12,38 @@ public class TaskListStub extends TaskList {
     }
 
     @Override
-    public void mark(Task task) {
+    public String mark(Task task) {
         called = "mark";
+        return called;
     }
 
     @Override
-    public void unmark(Task task) {
+    public String unmark(Task task) {
         called = "unmark";
+        return called;
     }
 
     @Override
-    public void addTodo(Todo todo, Storage storage, Ui ui) {
+    public String addTodo(Todo todo, Storage storage, Ui ui) {
         called = "addTodo";
+        return called;
     }
 
     @Override
-    public void addDeadline(Deadline deadline, Storage storage, Ui ui) {
+    public String addDeadline(Deadline deadline, Storage storage, Ui ui) {
         called = "addDeadline";
+        return called;
     }
 
     @Override
-    public void addEvent(Event event, Storage storage, Ui ui) {
+    public String addEvent(Event event, Storage storage, Ui ui) {
         called = "addEvent";
+        return called;
     }
 
     @Override
-    public void deleteTask(Task task, Storage storage, Ui ui) {
+    public String deleteTask(Task task, Storage storage, Ui ui) {
         called = "deleteTask";
+        return called;
     }
 }

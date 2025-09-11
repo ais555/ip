@@ -14,6 +14,14 @@ public class JohnChatter {
         this.ui = new Ui();
     }
 
+    public String getResponse(String input) {
+        try {
+            return Parser.parse(input, ui, storage, tasks);
+        } catch (JohnChatterException e) {
+            return e.getMessage();
+        }
+    }
+
     public void run() {
         ui.showWelcome();
         String input;

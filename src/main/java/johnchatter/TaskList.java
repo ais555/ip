@@ -13,61 +13,61 @@ public class TaskList {
         this.list = list;
     }
 
-    public void mark(Task task) {
+    public String mark(Task task) {
         if (task != null) {
             task.markAsDone();
-            System.out.println("marked " + task.description + " as done");
+            return "marked " + task.description + " as done";
         } else {
-            System.out.println("i cannot mark a task that doesn't exist yet");
+            return "i cannot mark a task that doesn't exist yet";
         }
     }
 
-    public void unmark(Task task) {
+    public String unmark(Task task) {
         if (task != null) {
             task.markAsUndone();
-            System.out.println("marked " + task.description + " as undone");
+            return "marked " + task.description + " as undone";
         } else {
-            System.out.println("i cannot mark a task that doesn't exist yet");
+            return "i cannot mark a task that doesn't exist yet";
         }
     }
 
-    public void addTodo(Todo todo, Storage storage, Ui ui) {
+    public String addTodo(Todo todo, Storage storage, Ui ui) {
         list.add(todo);
         try {
             storage.writeTaskData(list);
         } catch (IOException e) {
             ui.showError(e.getMessage());
         }
-        System.out.println("added:\n" + todo);
+        return "added:\n" + todo;
     }
 
-    public void addDeadline(Deadline deadline, Storage storage, Ui ui) {
+    public String addDeadline(Deadline deadline, Storage storage, Ui ui) {
         list.add(deadline);
         try {
             storage.writeTaskData(list);
         } catch (IOException e) {
             ui.showError(e.getMessage());
         }
-        System.out.println("added:\n" + deadline);
+        return "added:\n" + deadline;
     }
 
-    public void addEvent(Event event, Storage storage, Ui ui) {
+    public String addEvent(Event event, Storage storage, Ui ui) {
         list.add(event);
         try {
             storage.writeTaskData(list);
         } catch (IOException e) {
             ui.showError(e.getMessage());
         }
-        System.out.println("added:\n" + event);
+        return "added:\n" + event;
     }
 
-    public void deleteTask(Task task, Storage storage, Ui ui) {
+    public String deleteTask(Task task, Storage storage, Ui ui) {
         list.remove(task);
-        System.out.println("deleted task: " + task);
         try {
             storage.writeTaskData(list);
         } catch (IOException e) {
             ui.showError(e.getMessage());
         }
+        return "deleted task: " + task;
     }
 }
