@@ -17,23 +17,27 @@ public class Parser {
             ui.showGoodbye();
             return "bye";
         } else if (input.equals("list")) {
+            StringBuilder result = new StringBuilder();
             for (int i = 1; i <= list.size(); i++) {
                 Task item = list.get(i - 1);
                 if (item != null) {
-                    System.out.println(i + "." + item);
+                    result.append(i).append(".").append(item).append("\n");
                 }
             }
+            return result.toString();
         } else if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[0].equals("find")) {
             String keyword = splitInputAroundSpace[1];
             ArrayList<Task> filteredList = new ArrayList<>(list.stream()
                     .filter(task -> task.description.contains(keyword))
                     .collect(Collectors.toList()));
+            StringBuilder result = new StringBuilder();
             for (int i = 1; i <= filteredList.size(); i++) {
                 Task item = filteredList.get(i - 1);
                 if (item != null) {
-                    System.out.println(i + "." + item);
+                    result.append(i).append(".").append(item).append("\n");
                 }
             }
+            return result.toString();
         } else if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[0].equals("mark") && splitInputAroundSpace[1].matches("\\d+")) {
             // Mark a task as done
             int index = Integer.parseInt(splitInputAroundSpace[1]);
@@ -41,7 +45,7 @@ public class Parser {
                 throw new JohnChatterException(
                         "it seems you have input an invalid task number, please check and try again");
             }
-            tasks.mark(list.get(index - 1));
+            return tasks.mark(list.get(index - 1));
         } else if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[0].equals("unmark") && splitInputAroundSpace[1].matches("\\d+")) {
             // Mark a task as undone
             int index = Integer.parseInt(splitInputAroundSpace[1]);
@@ -49,7 +53,7 @@ public class Parser {
                 throw new JohnChatterException(
                         "it seems you have input an invalid task number, please check and try again");
             }
-            tasks.unmark(list.get(index - 1));
+            return tasks.unmark(list.get(index - 1));
         } else if (splitInputAroundSpace[0].equals("todo")) {
             // Add a Todo
             if (splitInputAroundSpace.length == 1) {
@@ -57,7 +61,7 @@ public class Parser {
             }
 
             Todo todo = new Todo(input.split("todo ")[1]);
-            tasks.addTodo(todo, storage, ui);
+            return tasks.addTodo(todo, storage, ui);
         } else if (splitInputAroundSpace[0].equals("deadline")) {
             // Add a Deadline
             if (splitInputAroundSpace.length == 1) {
@@ -74,7 +78,7 @@ public class Parser {
 
             Deadline deadline = new Deadline(
                     input.split("deadline ")[1].split(" /by")[0], formattedDeadlineDate);
-            tasks.addDeadline(deadline, storage, ui);
+            return tasks.addDeadline(deadline, storage, ui);
         } else if (splitInputAroundSpace[0].equals("event")) {
             // Add an Event
             if (splitInputAroundSpace.length == 1) {
@@ -99,7 +103,7 @@ public class Parser {
             }
 
             Event event = new Event(description, formattedStart, formattedEnd);
-            tasks.addEvent(event, storage, ui);
+            return tasks.addEvent(event, storage, ui);
         } else if (splitInputAroundSpace[0].equals("delete")) {
             if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[1].matches("\\d+")) {
                 int index = Integer.parseInt(splitInputAroundSpace[1]);
@@ -108,7 +112,7 @@ public class Parser {
                             "it seems you have input an invalid task number, please check and try again");
                 }
                 Task task = list.get(index - 1);
-                tasks.deleteTask(task, storage, ui);
+                return tasks.deleteTask(task, storage, ui);
             }
         } else {
             throw new JohnChatterException("sorry, i don't know what that means");
