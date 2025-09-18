@@ -13,6 +13,9 @@ public class Storage {
     String filePath;
     File file;
 
+    /**
+     * Constructs the Storage object, initialising the file that is to be written to and read from.
+     */
     public Storage(String filePath) {
         assert filePath != null : "filePath should not be null";
         this.filePath = filePath;
@@ -100,7 +103,7 @@ public class Storage {
      * Creates the directories where the data will be stored if necessary, before loading the data.
      *
      * @return ArrayList<Task>
-     * @throws IOException
+     * @throws IOException If the necessary directories fail to be created
      */
     public ArrayList<Task> load() throws IOException {
         File taskDataParent = this.file.getParentFile();

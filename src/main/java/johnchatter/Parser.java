@@ -21,6 +21,14 @@ public class Parser {
     private static final String ERROR_UNKNOWN_COMMAND =
             "sorry, i don't know what that means";
 
+    // ChatGPT was used to abstract out the helper functions from the parse method
+
+    /**
+     * Parses the user input and performs the appropriate action for the command given.
+     *
+     * @return John Chatter's text response that will be displayed to the user
+     * @throws JohnChatterException If the user issues an invalid command
+     */
     public static String parse(String input, Ui ui, Storage storage, TaskList tasks) throws JohnChatterException {
         assert input != null : "Input should not be null";
         assert ui != null : "Ui should not be null";

@@ -9,10 +9,16 @@ import java.util.ArrayList;
 public class TaskList {
     public ArrayList<Task> list;
 
+    /**
+     * Constructs the TaskList.
+     */
     public TaskList(ArrayList<Task> list) {
         this.list = list;
     }
 
+    /**
+     * Marks a task as completed.
+     */
     public String mark(Task task) {
         if (task == null) {
             return "i cannot mark a task that doesn't exist yet";
@@ -22,6 +28,9 @@ public class TaskList {
         return "marked " + task.description + " as done";
     }
 
+    /**
+     * Marks a task as incomplete.
+     */
     public String unmark(Task task) {
         if (task == null) {
             return "i cannot mark a task that doesn't exist yet";
@@ -31,6 +40,9 @@ public class TaskList {
         return "marked " + task.description + " as undone";
     }
 
+    /**
+     * Adds a Todo to the list and writes the new data to file.
+     */
     public String addTodo(Todo todo, Storage storage, Ui ui) {
         assert todo != null : "todo should not be null";
         assert ui != null : "Ui should not be null";
@@ -45,6 +57,9 @@ public class TaskList {
         return "added:\n" + todo;
     }
 
+    /**
+     * Adds a Deadline to the list and writes the new data to file.
+     */
     public String addDeadline(Deadline deadline, Storage storage, Ui ui) {
         assert deadline != null : "deadline should not be null";
         assert ui != null : "Ui should not be null";
@@ -59,6 +74,9 @@ public class TaskList {
         return "added:\n" + deadline;
     }
 
+    /**
+     * Adds an Event to the list and writes the new data to file.
+     */
     public String addEvent(Event event, Storage storage, Ui ui) {
         assert event != null : "event should not be null";
         assert ui != null : "Ui should not be null";
@@ -73,6 +91,9 @@ public class TaskList {
         return "added:\n" + event;
     }
 
+    /**
+     * Deletes a Task from the list and writes the updated data to file.
+     */
     public String deleteTask(Task task, Storage storage, Ui ui) {
         assert task != null : "task should not be null";
         assert ui != null : "Ui should not be null";
