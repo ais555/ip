@@ -10,6 +10,25 @@ import java.util.stream.Collectors;
  * Handles the parsing of commands from user input.
  */
 public class Parser {
+    private static final String ERROR_TODO_NO_DESCRIPTION =
+            "oops! todo must have a description";
+    private static final String ERROR_DEADLINE_NO_BY =
+            "oops! deadline must have a /by date";
+    private static final String ERROR_EVENT_NO_FROM_TO =
+            "oops! event must have /from and /to dates";
+    private static final String ERROR_INVALID_TASK_NUMBER =
+            "it seems you have input an invalid task number, please check and try again";
+    private static final String ERROR_UNKNOWN_COMMAND =
+            "sorry, i don't know what that means";
+
+    // ChatGPT was used to abstract out the helper functions from the parse method
+
+    /**
+     * Parses the user input and performs the appropriate action for the command given.
+     *
+     * @return John Chatter's text response that will be displayed to the user
+     * @throws JohnChatterException If the user issues an invalid command
+     */
     public static String parse(String input, Ui ui, Storage storage, TaskList tasks) throws JohnChatterException {
         assert input != null : "Input should not be null";
         assert ui != null : "Ui should not be null";
@@ -17,111 +36,135 @@ public class Parser {
         assert tasks != null : "Task list should not be null";
 
         ArrayList<Task> list = tasks.list;
-        String[] splitInputAroundSpace = input.split(" ");
-        if (input.equals("bye")) {
-            ui.showGoodbye();
-            return "bye";
-        } else if (input.equals("list")) {
-            StringBuilder result = new StringBuilder();
-            for (int i = 1; i <= list.size(); i++) {
-                Task item = list.get(i - 1);
-                if (item != null) {
-                    result.append(i).append(".").append(item).append("\n");
-                }
-            }
-            return result.toString();
-        } else if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[0].equals("find")) {
-            String keyword = splitInputAroundSpace[1];
-            ArrayList<Task> filteredList = new ArrayList<>(list.stream()
-                    .filter(task -> task.description.contains(keyword))
-                    .collect(Collectors.toList()));
-            StringBuilder result = new StringBuilder();
-            for (int i = 1; i <= filteredList.size(); i++) {
-                Task item = filteredList.get(i - 1);
-                if (item != null) {
-                    result.append(i).append(".").append(item).append("\n");
-                }
-            }
-            return result.toString();
-        } else if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[0].equals("mark") && splitInputAroundSpace[1].matches("\\d+")) {
-            // Mark a task as done
-            int index = Integer.parseInt(splitInputAroundSpace[1]);
-            if (index > list.size()) {
-                throw new JohnChatterException(
-                        "it seems you have input an invalid task number, please check and try again");
-            }
-            return tasks.mark(list.get(index - 1));
-        } else if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[0].equals("unmark") && splitInputAroundSpace[1].matches("\\d+")) {
-            // Mark a task as undone
-            int index = Integer.parseInt(splitInputAroundSpace[1]);
-            if (index > list.size()) {
-                throw new JohnChatterException(
-                        "it seems you have input an invalid task number, please check and try again");
-            }
-            return tasks.unmark(list.get(index - 1));
-        } else if (splitInputAroundSpace[0].equals("todo")) {
-            // Add a Todo
-            if (splitInputAroundSpace.length == 1) {
-                throw new JohnChatterException("oops! tasks must have a description");
-            }
+        String[] tokens = input.split(" ");
+        String command = tokens[0];
 
-            Todo todo = new Todo(input.split("todo ")[1]);
-            return tasks.addTodo(todo, storage, ui);
-        } else if (splitInputAroundSpace[0].equals("deadline")) {
-            // Add a Deadline
-            if (splitInputAroundSpace.length == 1) {
-                throw new JohnChatterException("oops! tasks must have a description");
-            }
-            String formattedDeadlineDate;
-            String deadlineDateInput = input.split("/by ")[1];
-            try {
-                LocalDate deadlineDate = LocalDate.parse(deadlineDateInput);
-                formattedDeadlineDate = deadlineDate.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
-            } catch (DateTimeParseException e) {
-                formattedDeadlineDate = deadlineDateInput;
-            }
-
-            Deadline deadline = new Deadline(
-                    input.split("deadline ")[1].split(" /by")[0], formattedDeadlineDate);
-            return tasks.addDeadline(deadline, storage, ui);
-        } else if (splitInputAroundSpace[0].equals("event")) {
-            // Add an Event
-            if (splitInputAroundSpace.length == 1) {
-                throw new JohnChatterException("oops! tasks must have a description");
-            }
-            String formattedEnd;
-            String formattedStart;
-            String endInput = input.split("/to ")[1];
-            String startInput = input.split(" /to")[0].split("/from ")[1];
-            String description = input.split(" /to")[0].split(" /from")[0].split("event ")[1];
-            try {
-                LocalDate startDate = LocalDate.parse(startInput);
-                formattedStart = startDate.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
-            } catch (DateTimeParseException e) {
-                formattedStart = startInput;
-            }
-            try {
-                LocalDate endDate = LocalDate.parse(endInput);
-                formattedEnd = endDate.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
-            } catch (DateTimeParseException e) {
-                formattedEnd = endInput;
-            }
-
-            Event event = new Event(description, formattedStart, formattedEnd);
-            return tasks.addEvent(event, storage, ui);
-        } else if (splitInputAroundSpace[0].equals("delete")) {
-            if (splitInputAroundSpace.length == 2 && splitInputAroundSpace[1].matches("\\d+")) {
-                int index = Integer.parseInt(splitInputAroundSpace[1]);
-                if (index > list.size()) {
-                    throw new JohnChatterException(
-                            "it seems you have input an invalid task number, please check and try again");
-                }
-                Task task = list.get(index - 1);
-                return tasks.deleteTask(task, storage, ui);
-            }
-        } else {
-            throw new JohnChatterException("sorry, i don't know what that means");
+        switch (command) {
+        case "bye":
+            return handleBye(ui);
+        case "list":
+            return handleList(list);
+        case "find":
+            return handleFind(tokens, list);
+        case "mark":
+            return handleMark(tokens, list, tasks);
+        case "unmark":
+            return handleUnmark(tokens, list, tasks);
+        case "todo":
+            return handleTodo(input, storage, tasks, ui);
+        case "deadline":
+            return handleDeadline(input, storage, tasks, ui);
+        case "event":
+            return handleEvent(input, storage, tasks, ui);
+        case "delete":
+            return handleDelete(tokens, list, tasks, storage, ui);
+        default:
+            throw new JohnChatterException(ERROR_UNKNOWN_COMMAND);
         }
-        return "";
+    }
+
+    private static String handleBye(Ui ui) {
+        ui.showGoodbye();
+        return "bye";
+    }
+
+    private static String handleList(ArrayList<Task> list) {
+        return formatTaskList(list);
+    }
+
+    private static String handleFind(String[] tokens, ArrayList<Task> list) {
+        if (tokens.length != 2) {
+            return "";
+        }
+        String keyword = tokens[1];
+        ArrayList<Task> filteredList = new ArrayList<>(list.stream()
+                .filter(task -> task.description.contains(keyword))
+                .collect(Collectors.toList()));
+
+        return formatTaskList(filteredList);
+    }
+
+    private static String formatTaskList(ArrayList<Task> list) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            Task item = list.get(i);
+            if (item == null) {
+                continue;
+            }
+            result.append(i + 1).append(".").append(item).append("\n");
+        }
+        return result.toString();
+    }
+
+    private static String handleMark(String[] tokens, ArrayList<Task> list, TaskList tasks) throws JohnChatterException {
+        int index = parseIndex(tokens, list);
+        return tasks.mark(list.get(index));
+    }
+
+    private static String handleUnmark(String[] tokens, ArrayList<Task> list, TaskList tasks) throws JohnChatterException {
+        int index = parseIndex(tokens, list);
+        return tasks.unmark(list.get(index));
+    }
+
+    private static String handleTodo(String input, Storage storage, TaskList tasks, Ui ui) throws JohnChatterException {
+        if (!input.contains("todo ")) {
+            throw new JohnChatterException(ERROR_TODO_NO_DESCRIPTION);
+        }
+        Todo todo = new Todo(input.split("todo ")[1]);
+
+        return tasks.addTodo(todo, storage, ui);
+    }
+
+    private static String handleDeadline(String input, Storage storage, TaskList tasks, Ui ui) throws JohnChatterException {
+        if (!input.contains("/by ")) {
+            throw new JohnChatterException(ERROR_DEADLINE_NO_BY);
+        }
+        String description = input.split("deadline ")[1].split(" /by")[0];
+        String deadlineDateInput = input.split("/by ")[1];
+        String formattedDate = formatDate(deadlineDateInput);
+
+        Deadline deadline = new Deadline(description, formattedDate);
+        return tasks.addDeadline(deadline, storage, ui);
+    }
+
+    private static String handleEvent(String input, Storage storage, TaskList tasks, Ui ui) throws JohnChatterException {
+        if (!input.contains("/from ") || !input.contains("/to ")) {
+            throw new JohnChatterException(ERROR_EVENT_NO_FROM_TO);
+        }
+        String description = input.split(" /from")[0].split("event ")[1];
+        String startInput = input.split(" /to")[0].split("/from ")[1];
+        String endInput = input.split("/to ")[1];
+
+        String formattedStart = formatDate(startInput);
+        String formattedEnd = formatDate(endInput);
+
+        Event event = new Event(description, formattedStart, formattedEnd);
+        return tasks.addEvent(event, storage, ui);
+    }
+
+    private static String handleDelete(String[] tokens, ArrayList<Task> list, TaskList tasks, Storage storage, Ui ui) throws JohnChatterException {
+        int index = parseIndex(tokens, list);
+        Task task = list.get(index);
+        return tasks.deleteTask(task, storage, ui);
+    }
+
+    private static int parseIndex(String[] tokens, ArrayList<Task> list) throws JohnChatterException {
+        if (tokens.length != 2 || !tokens[1].matches("\\d+")) {
+            throw new JohnChatterException(ERROR_INVALID_TASK_NUMBER);
+        }
+        int index = Integer.parseInt(tokens[1]) - 1;
+        if (index < 0 || index >= list.size()) {
+            throw new JohnChatterException(ERROR_INVALID_TASK_NUMBER);
+        }
+        return index;
+    }
+
+    private static String formatDate(String input) {
+        try {
+            LocalDate date = LocalDate.parse(input);
+            return date.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
+        } catch (DateTimeParseException e) {
+            return input;
+        }
     }
 }

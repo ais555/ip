@@ -8,6 +8,11 @@ public class JohnChatter {
     private final TaskList tasks;
     private final Ui ui;
 
+    /**
+     * Constructs the JohnChatter object and initialises storage, tasks, and ui.
+     *
+     * @param filepath The filepath of the text file that stores task data
+     */
     public JohnChatter(String filepath) throws IOException {
         assert filepath != null : "Filepath should not be null";
 
@@ -21,6 +26,11 @@ public class JohnChatter {
         assert this.ui != null : "Ui should not be null";
     }
 
+    /**
+     * Gets John Chatter's response to a given user input.
+     *
+     * @return The response that will be displayed in the DialogBox
+     */
     public String getResponse(String input) {
         assert input != null : "Input should not be null";
         try {
@@ -32,6 +42,10 @@ public class JohnChatter {
         }
     }
 
+    /**
+     * Handles the app's main functionality loop of scanning user input then responding appropriately.
+     * Terminates when the "bye" command is given.
+     */
     public void run() {
         ui.showWelcome();
         String input;
