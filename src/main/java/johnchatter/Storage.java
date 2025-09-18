@@ -14,6 +14,7 @@ public class Storage {
     File file;
 
     public Storage(String filePath) {
+        assert filePath != null : "filePath should not be null";
         this.filePath = filePath;
         this.file = new File(this.filePath);
     }
@@ -26,6 +27,9 @@ public class Storage {
      * @throws IOException If an exception occurs in writing
      */
     public void writeTaskData(ArrayList<Task> items) throws IOException {
+        assert items != null : "ArrayList should not be null";
+        assert this.file != null : "file to write to should not be null";
+
         FileWriter writer = new FileWriter(this.file);
         for (Task item : items) {
             StringBuilder nextLine = new StringBuilder();
@@ -59,6 +63,8 @@ public class Storage {
      */
     public ArrayList<Task> loadTaskData() throws IOException {
         ArrayList<Task> items = new ArrayList<>();
+
+        assert this.file != null : "file to load from should not be null";
         Scanner scanner = new Scanner(this.file);
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine().trim();

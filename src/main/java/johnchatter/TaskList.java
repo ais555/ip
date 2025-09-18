@@ -32,6 +32,10 @@ public class TaskList {
     }
 
     public String addTodo(Todo todo, Storage storage, Ui ui) {
+        assert todo != null : "todo should not be null";
+        assert ui != null : "Ui should not be null";
+        assert storage != null : "Storage should not be null";
+
         list.add(todo);
         try {
             storage.writeTaskData(list);
@@ -42,6 +46,10 @@ public class TaskList {
     }
 
     public String addDeadline(Deadline deadline, Storage storage, Ui ui) {
+        assert deadline != null : "deadline should not be null";
+        assert ui != null : "Ui should not be null";
+        assert storage != null : "Storage should not be null";
+
         list.add(deadline);
         try {
             storage.writeTaskData(list);
@@ -52,6 +60,10 @@ public class TaskList {
     }
 
     public String addEvent(Event event, Storage storage, Ui ui) {
+        assert event != null : "event should not be null";
+        assert ui != null : "Ui should not be null";
+        assert storage != null : "Storage should not be null";
+
         list.add(event);
         try {
             storage.writeTaskData(list);
@@ -62,6 +74,10 @@ public class TaskList {
     }
 
     public String deleteTask(Task task, Storage storage, Ui ui) {
+        assert task != null : "task should not be null";
+        assert ui != null : "Ui should not be null";
+        assert storage != null : "Storage should not be null";
+
         list.remove(task);
         try {
             storage.writeTaskData(list);
