@@ -14,21 +14,21 @@ public class TaskList {
     }
 
     public String mark(Task task) {
-        if (task != null) {
-            task.markAsDone();
-            return "marked " + task.description + " as done";
-        } else {
+        if (task == null) {
             return "i cannot mark a task that doesn't exist yet";
         }
+
+        task.markAsDone();
+        return "marked " + task.description + " as done";
     }
 
     public String unmark(Task task) {
-        if (task != null) {
-            task.markAsUndone();
-            return "marked " + task.description + " as undone";
-        } else {
+        if (task == null) {
             return "i cannot mark a task that doesn't exist yet";
         }
+
+        task.markAsUndone();
+        return "marked " + task.description + " as undone";
     }
 
     public String addTodo(Todo todo, Storage storage, Ui ui) {

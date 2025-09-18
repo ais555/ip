@@ -80,9 +80,10 @@ public class Parser {
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
             Task item = list.get(i);
-            if (item != null) {
-                result.append(i + 1).append(".").append(item).append("\n");
+            if (item == null) {
+                continue;
             }
+            result.append(i + 1).append(".").append(item).append("\n");
         }
         return result.toString();
     }
