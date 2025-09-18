@@ -11,6 +11,11 @@ import java.util.stream.Collectors;
  */
 public class Parser {
     public static String parse(String input, Ui ui, Storage storage, TaskList tasks) throws JohnChatterException {
+        assert input != null : "Input should not be null";
+        assert ui != null : "Ui should not be null";
+        assert storage != null : "Storage should not be null";
+        assert tasks != null : "Task list should not be null";
+
         ArrayList<Task> list = tasks.list;
         String[] splitInputAroundSpace = input.split(" ");
         if (input.equals("bye")) {
