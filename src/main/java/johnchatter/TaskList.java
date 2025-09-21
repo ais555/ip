@@ -19,24 +19,26 @@ public class TaskList {
     /**
      * Marks a task as completed.
      */
-    public String mark(Task task) {
+    public String mark(Task task, Storage storage) throws IOException {
         if (task == null) {
             return "i cannot mark a task that doesn't exist yet";
         }
 
         task.markAsDone();
+        storage.writeTaskData(list);
         return "marked " + task.description + " as done";
     }
 
     /**
      * Marks a task as incomplete.
      */
-    public String unmark(Task task) {
+    public String unmark(Task task, Storage storage) throws IOException {
         if (task == null) {
             return "i cannot mark a task that doesn't exist yet";
         }
 
         task.markAsUndone();
+        storage.writeTaskData(list);
         return "marked " + task.description + " as undone";
     }
 

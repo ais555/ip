@@ -1,5 +1,6 @@
 package johnchatter;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -29,7 +30,7 @@ public class Parser {
      * @return John Chatter's text response that will be displayed to the user
      * @throws JohnChatterException If the user issues an invalid command
      */
-    public static String parse(String input, Ui ui, Storage storage, TaskList tasks) throws JohnChatterException {
+    public static String parse(String input, Ui ui, Storage storage, TaskList tasks) throws JohnChatterException, IOException {
         assert input != null : "Input should not be null";
         assert ui != null : "Ui should not be null";
         assert storage != null : "Storage should not be null";
@@ -45,13 +46,13 @@ public class Parser {
         case "list":
             return handleList(list);
         case "find":
-            return handleFind(tokens, list);
+            return handleFind(tokens, list, storage);
         case "findtag":
-            return handleFindTag(tokens, list);
+            return handleFindTag(tokens, list, storage);
         case "mark":
-            return handleMark(tokens, list, tasks);
+            return handleMark(tokens, list, tasks, storage, ui);
         case "unmark":
-            return handleUnmark(tokens, list, tasks);
+            return handleUnmark(tokens, list, tasks, storage, ui);
         case "todo":
             return handleTodo(input, storage, tasks, ui);
         case "deadline":
@@ -61,9 +62,9 @@ public class Parser {
         case "delete":
             return handleDelete(tokens, list, tasks, storage, ui);
         case "tag":
-            return handleTag(tokens, list, tasks);
+            return handleTag(tokens, list, storage, ui);
         case "untag":
-            return handleUntag(tokens, list, tasks);
+            return handleUntag(tokens, list, storage, ui);
         default:
             throw new JohnChatterException(ERROR_UNKNOWN_COMMAND);
         }
@@ -79,7 +80,7 @@ public class Parser {
     }
 
     // ChatGPT was used to improve the handleFind and handleFindTag methods
-    private static String handleFind(String[] tokens, ArrayList<Task> list) throws JohnChatterException {
+    private static String handleFind(String[] tokens, ArrayList<Task> list, Storage storage) throws JohnChatterException, IOException {
         if (tokens.length < 2) {
             throw new JohnChatterException("usage: find <keyword1> <keyword2> ...");
         }
@@ -101,10 +102,11 @@ public class Parser {
                 })
                 .toList());
 
+        storage.writeTaskData(list);
         return formatTaskList(filteredList);
     }
 
-    private static String handleFindTag(String[] tokens, ArrayList<Task> list) throws JohnChatterException {
+    private static String handleFindTag(String[] tokens, ArrayList<Task> list, Storage storage) throws JohnChatterException, IOException {
         if (tokens.length < 2) {
             throw new JohnChatterException("usage: findtag <tag1> <tag2> ...");
         }
@@ -125,6 +127,7 @@ public class Parser {
                 })
                 .toList());
 
+        storage.writeTaskData(list);
         return formatTaskList(filteredList);
     }
 
@@ -140,14 +143,24 @@ public class Parser {
         return result.toString();
     }
 
-    private static String handleMark(String[] tokens, ArrayList<Task> list, TaskList tasks) throws JohnChatterException {
+    private static String handleMark(String[] tokens, ArrayList<Task> list, TaskList tasks, Storage storage, Ui ui) throws JohnChatterException, IOException {
         int index = parseIndex(tokens, list);
-        return tasks.mark(list.get(index));
+        try {
+            storage.writeTaskData(list);
+        } catch (IOException e) {
+            ui.showError(e.getMessage());
+        }
+        return tasks.mark(list.get(index), storage);
     }
 
-    private static String handleUnmark(String[] tokens, ArrayList<Task> list, TaskList tasks) throws JohnChatterException {
+    private static String handleUnmark(String[] tokens, ArrayList<Task> list, TaskList tasks, Storage storage, Ui ui) throws JohnChatterException, IOException {
         int index = parseIndex(tokens, list);
-        return tasks.unmark(list.get(index));
+        try {
+            storage.writeTaskData(list);
+        } catch (IOException e) {
+            ui.showError(e.getMessage());
+        }
+        return tasks.unmark(list.get(index), storage);
     }
 
     private static String handleTodo(String input, Storage storage, TaskList tasks, Ui ui) throws JohnChatterException {
@@ -213,7 +226,7 @@ public class Parser {
     }
 
     // ChatGPT was used to write this method
-    private static String handleTag(String[] tokens, ArrayList<Task> list, TaskList tasks) throws JohnChatterException {
+    private static String handleTag(String[] tokens, ArrayList<Task> list, Storage storage, Ui ui) throws JohnChatterException {
         if (tokens.length != 3) {
             throw new JohnChatterException("usage: tag <task_number> <#tag>");
         }
@@ -221,11 +234,16 @@ public class Parser {
         String tag = tokens[2];
         Task task = list.get(index);
         task.addTag(tag);
+        try {
+            storage.writeTaskData(list);
+        } catch (IOException e) {
+            ui.showError(e.getMessage());
+        }
         return "added tag " + tag + " to task: " + task;
     }
 
     // ChatGPT was used to write this method
-    private static String handleUntag(String[] tokens, ArrayList<Task> list, TaskList tasks) throws JohnChatterException {
+    private static String handleUntag(String[] tokens, ArrayList<Task> list, Storage storage, Ui ui) throws JohnChatterException {
         if (tokens.length != 3) {
             throw new JohnChatterException("usage: untag <task_number> <#tag>");
         }
@@ -234,6 +252,11 @@ public class Parser {
         Task task = list.get(index);
         if (task.getTags().contains(tag)) {
             task.removeTag(tag);
+            try {
+                storage.writeTaskData(list);
+            } catch (IOException e) {
+                ui.showError(e.getMessage());
+            }
             return "removed tag " + tag + " from task: " + task;
         } else {
             return "task does not have tag " + tag;

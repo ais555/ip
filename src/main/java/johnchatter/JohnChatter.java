@@ -37,7 +37,7 @@ public class JohnChatter {
             String response = Parser.parse(input, ui, storage, tasks);
             assert response != null : "response should not be null";
             return response;
-        } catch (JohnChatterException e) {
+        } catch (JohnChatterException | IOException e) {
             return e.getMessage();
         }
     }
@@ -57,7 +57,7 @@ public class JohnChatter {
                 if (Parser.parse(input, ui, storage, tasks).equals("bye")) {
                     break;
                 }
-            } catch (JohnChatterException e) {
+            } catch (JohnChatterException | IOException e) {
                 ui.showError(e.getMessage());
             } finally {
                 ui.showDividerLine();
