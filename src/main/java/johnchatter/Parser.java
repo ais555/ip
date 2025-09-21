@@ -46,6 +46,8 @@ public class Parser {
             return handleList(list);
         case "find":
             return handleFind(tokens, list);
+        case "findtag":
+            return handleFindTag(tokens, list);
         case "mark":
             return handleMark(tokens, list, tasks);
         case "unmark":
@@ -58,6 +60,10 @@ public class Parser {
             return handleEvent(input, storage, tasks, ui);
         case "delete":
             return handleDelete(tokens, list, tasks, storage, ui);
+        case "tag":
+            return handleTag(tokens, list, tasks);
+        case "untag":
+            return handleUntag(tokens, list, tasks);
         default:
             throw new JohnChatterException(ERROR_UNKNOWN_COMMAND);
         }
@@ -72,14 +78,52 @@ public class Parser {
         return formatTaskList(list);
     }
 
-    private static String handleFind(String[] tokens, ArrayList<Task> list) {
-        if (tokens.length != 2) {
-            return "";
+    // ChatGPT was used to improve the handleFind and handleFindTag methods
+    private static String handleFind(String[] tokens, ArrayList<Task> list) throws JohnChatterException {
+        if (tokens.length < 2) {
+            throw new JohnChatterException("usage: find <keyword1> <keyword2> ...");
         }
-        String keyword = tokens[1];
+
+        // all search keywords, lowercase for case-insensitive matching
+        String[] keywords = new String[tokens.length - 1];
+        System.arraycopy(tokens, 1, keywords, 0, tokens.length - 1);
+
         ArrayList<Task> filteredList = new ArrayList<>(list.stream()
-                .filter(task -> task.description.contains(keyword))
-                .collect(Collectors.toList()));
+                .filter(task -> {
+                    String desc = task.description.toLowerCase();
+                    // must match ALL keywords
+                    for (String keyword : keywords) {
+                        if (!desc.contains(keyword.toLowerCase())) {
+                            return false;
+                        }
+                    }
+                    return true;
+                })
+                .toList());
+
+        return formatTaskList(filteredList);
+    }
+
+    private static String handleFindTag(String[] tokens, ArrayList<Task> list) throws JohnChatterException {
+        if (tokens.length < 2) {
+            throw new JohnChatterException("usage: findtag <tag1> <tag2> ...");
+        }
+
+        String[] tags = new String[tokens.length - 1];
+        System.arraycopy(tokens, 1, tags, 0, tokens.length - 1);
+
+        ArrayList<Task> filteredList = new ArrayList<>(list.stream()
+                .filter(task -> {
+                    String desc = task.description.toLowerCase();
+                    // must match all tags
+                    for (String tag : tags) {
+                        if (!task.getTags().contains(tag.toLowerCase())) {
+                            return false;
+                        }
+                    }
+                    return true;
+                })
+                .toList());
 
         return formatTaskList(filteredList);
     }
@@ -165,6 +209,34 @@ public class Parser {
             return date.format(DateTimeFormatter.ofPattern("MMM d yyyy"));
         } catch (DateTimeParseException e) {
             return input;
+        }
+    }
+
+    // ChatGPT was used to write this method
+    private static String handleTag(String[] tokens, ArrayList<Task> list, TaskList tasks) throws JohnChatterException {
+        if (tokens.length != 3) {
+            throw new JohnChatterException("usage: tag <task_number> <#tag>");
+        }
+        int index = parseIndex(new String[]{tokens[0], tokens[1]}, list);
+        String tag = tokens[2];
+        Task task = list.get(index);
+        task.addTag(tag);
+        return "added tag " + tag + " to task: " + task;
+    }
+
+    // ChatGPT was used to write this method
+    private static String handleUntag(String[] tokens, ArrayList<Task> list, TaskList tasks) throws JohnChatterException {
+        if (tokens.length != 3) {
+            throw new JohnChatterException("usage: untag <task_number> <#tag>");
+        }
+        int index = parseIndex(new String[]{tokens[0], tokens[1]}, list);
+        String tag = tokens[2];
+        Task task = list.get(index);
+        if (task.getTags().contains(tag)) {
+            task.removeTag(tag);
+            return "removed tag " + tag + " from task: " + task;
+        } else {
+            return "task does not have tag " + tag;
         }
     }
 }

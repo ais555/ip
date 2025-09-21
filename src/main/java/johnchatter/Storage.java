@@ -52,12 +52,21 @@ public class Storage {
                         .append(event.start).append("|")
                         .append(event.end);
             }
+
+            if (!item.getTags().isEmpty()) {
+                nextLine.append("|")
+                        .append(String.join(",", item.getTags()));
+            } else {
+                nextLine.append("|");
+            }
+
             writer.write(nextLine.toString());
             writer.write(System.lineSeparator());
         }
         writer.close();
     }
 
+    // This method was written with the assistance of ChatGPT
     /**
      * Reads task data from the disk, which is then used by the rest of the program.
      *
@@ -71,30 +80,50 @@ public class Storage {
         Scanner scanner = new Scanner(this.file);
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine().trim();
+            if (line.isEmpty()) continue;
 
             String[] parts = line.split("\\|");
             String taskType = parts[0];
             boolean isDone = parts[1].equals("1");
+            Task task = null;
 
             switch (taskType) {
             case "T":
-                Todo todo = new Todo(parts[2]);
-                if (isDone) todo.markAsDone();
-                items.add(todo);
+                task = new Todo(parts[2]);
                 break;
             case "D":
-                Deadline d = new Deadline(parts[2], parts[3]);
-                if (isDone) d.markAsDone();
-                items.add(d);
+                task = new Deadline(parts[2], parts[3]);
                 break;
             case "E":
-                Event e = new Event(parts[2], parts[3], parts[4]);
-                if (isDone) e.markAsDone();
-                items.add(e);
+                task = new Event(parts[2], parts[3], parts[4]);
                 break;
             default:
                 System.out.println("unrecognised task type");
             }
+
+            if (task == null) {
+                continue;
+            }
+
+            if (isDone) task.markAsDone();
+
+            int tagFieldIndex = switch (taskType) {
+                case "T" -> 3;
+                case "D" -> 4;
+                case "E" -> 5;
+                default -> -1;
+            };
+
+            if (tagFieldIndex != -1 && parts.length > tagFieldIndex) {
+                String tagsString = parts[tagFieldIndex];
+                if (!tagsString.isEmpty()) {
+                    for (String tag : tagsString.split(",")) {
+                        task.addTag(tag);
+                    }
+                }
+            }
+
+            items.add(task);
         }
         return items;
     }
