@@ -12,13 +12,13 @@ public class TaskListStub extends TaskList {
     }
 
     @Override
-    public String mark(Task task) {
+    public String mark(Task task, Storage storage) {
         called = "mark";
         return called;
     }
 
     @Override
-    public String unmark(Task task) {
+    public String unmark(Task task, Storage storage) {
         called = "unmark";
         return called;
     }
